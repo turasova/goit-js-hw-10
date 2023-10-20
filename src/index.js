@@ -1,11 +1,11 @@
-import axios from "axios";
+
 import SlimSelect from 'slim-select';
 import 'slim-select/dist/slimselect.css';
 import { fetchBreeds, fetchCatByBreed } from "./cat-api";
 import Notiflix from "notiflix";
+import './style.css'
 
-axios.defaults.headers.common["x-api-key"] =
-"live_2hjDRbkow5Awcj03ssO9FogJTsSIFE3B5S49HzYcHRhZpHlGvkGV2Vewj7CPtLNL";
+
 
 const refs = {
     select: document.querySelector('.breed-select'),
@@ -14,14 +14,18 @@ const refs = {
     error: document.querySelector('.error'),
 }
 
-refs.loader.style.display ='none';
-refs.error.style.display ='none';
-//refs.cardCat.style.display ='none';
+//refs.loader.classList.replace('loader', 'is-hidden');
+refs.loader.classList.add('is-hidden');
+refs.error.classList.add('is-hidden');
+refs.cardCat.classList.add('is-hidden');
 
 let arrBreedsId = [];
 
 fetchBreeds()
     .then(data => { 
+
+
+        
         console.log(data);
         data.forEach(element => {
             arrBreedsId.push({ text: element.name, value: element.id })
@@ -32,7 +36,7 @@ fetchBreeds()
             data: arrBreedsId,
         })
     })
-    .catch(err => console.log(err))
+    .catch(fetchError)
    
 
 
@@ -40,33 +44,69 @@ refs.select.addEventListener('change', breedsSearch)
 
 function breedsSearch(evt) {
 
-    const  breedId = evt.currentTarget.elements;
-      
+   //refs.loader.classList.replace('is-hidden', 'loader');
+   refs.select.classList.add('is-hidden')
+    refs.cardCat.classList.add('is-hidden');
+    
 
-fetchCatByBreed(breedId)
-    .then(data => {
-       
-       
-        refs.cardCat.insertAdjacentHTML('beforebegin', createMarkup(data))
-        
-       
-        refs.cardCat.style.display = 'block';
-})
-.catch(err => console.log(err))
+
+
+    const breedId = evt.currentTarget.value;
+
+   console.log(breedId);
+
+    fetchCatByBreed(breedId)
+        .then(data => {
+            //console.log(data)
+            //refs.loader.classList.replace('loader', 'is-hidden');
+            refs.select.classList.remove('is-hidden');
+
+            // refs.cardCat.insertAdjacentHTML('afterbegin', createMarkup(data))
+            Notiflix.Loading.hourglass(
+                'Loading data, please wait...',{
+           clickToClose: true,
+           svgSize: '50px',
+           });
+            Notiflix.Loading.remove(1000);
+            
+            refs.cardCat.innerHTML = createMarkup(data);
+            refs.cardCat.classList.remove('is-hidden');
+            
+        }
+        )
+  
+        .catch(fetchError);
 }
 
 
- function createMarkup(arr) {
-     return arr.map(({ url, breeds: { name, description, temperament } }) => {
-        `<div class="box-img">
-        <img src="${url}" alt="${name}" width="400"/>
+function createMarkup(obj) {
+     
+    const img = obj[0].url;
+
+    const { name, description, temperament } = obj[0].breeds[0];
+
+    return `<div class="box-img">
+        <img src="${img}" alt="${name}" width="400"/>
         </div>
         <div class="box">
         <h1>${name}</h1>
         <p>${description}</p>
+        <b>Temperament:</b>
         <p> ${temperament}</p>
         </div>`
-    }).join('');
+}
 
+function fetchError() {
+    refs.select.classList.add('is-hidden');
+
+Notiflix.Report.failure(
+  'Error',
+  'Oops! Something went wrong! Try reloading the page or select another cat breed!',
+  'OK',
+  {
+    width: '360px',
+    svgSize: '120px',
+  },
+);
 }
 
