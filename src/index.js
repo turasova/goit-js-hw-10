@@ -14,21 +14,24 @@ const refs = {
     error: document.querySelector('.error'),
 }
 
-//refs.loader.classList.replace('loader', 'is-hidden');
-refs.error.style.display = 'none';
+refs.loader.classList.replace('loader', 'is-hidden');
 refs.cardCat.classList.add('is-hidden');
+refs.error.style.display = 'none';
+
 
 
 let arrBreedsId = [];
 
 fetchBreeds()
     .then(data => { 
+ 
         console.log(data);
         data.forEach(element => {
             arrBreedsId.push({ text: element.name, value: element.id })
         });
          
         new SlimSelect({
+            
             select: refs.select,
             // Array of Option objects
             data: arrBreedsId,
@@ -38,7 +41,7 @@ fetchBreeds()
    
 
 
-refs.select.addEventListener('change',breedsSearch)
+refs.select.addEventListener('change', breedsSearch)
 
 function breedsSearch(evt) {
         Notiflix.Loading.hourglass(
@@ -46,9 +49,15 @@ function breedsSearch(evt) {
            clickToClose: true,
            svgSize: '50px',
            });
+            
+            
+
    //refs.loader.classList.replace('is-hidden', 'loader');
     refs.cardCat.classList.add('is-hidden');
      refs.select.style.display = 'block';
+
+
+
     const breedId = evt.currentTarget.value;
 
    console.log(breedId);
@@ -63,6 +72,7 @@ function breedsSearch(evt) {
        
             refs.cardCat.innerHTML = createMarkup(data);
             refs.cardCat.classList.remove('is-hidden');
+            
             
         }
         )
