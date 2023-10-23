@@ -14,23 +14,22 @@ const refs = {
     error: document.querySelector('.error'),
 }
 
-//refs.loader.classList.replace('loader', 'is-hidden');
-refs.loader.classList.add('is-hidden');
-refs.error.classList.add('is-hidden');
+refs.loader.classList.replace('loader', 'is-hidden');
 refs.cardCat.classList.add('is-hidden');
+refs.error.style.display = 'none';
 
 let arrBreedsId = [];
 
 fetchBreeds()
     .then(data => { 
-
-
-        
+ 
         console.log(data);
         data.forEach(element => {
             arrBreedsId.push({ text: element.name, value: element.id })
         });
+         
         new SlimSelect({
+            
             select: refs.select,
             // Array of Option objects
             data: arrBreedsId,
@@ -43,11 +42,17 @@ fetchBreeds()
 refs.select.addEventListener('change', breedsSearch)
 
 function breedsSearch(evt) {
+        Notiflix.Loading.hourglass(
+                'Loading data, please wait...',{
+           clickToClose: true,
+           svgSize: '50px',
+           });
+            
+            
 
    //refs.loader.classList.replace('is-hidden', 'loader');
-   refs.select.classList.add('is-hidden')
     refs.cardCat.classList.add('is-hidden');
-    
+     refs.select.style.display = 'block';
 
 
 
@@ -58,17 +63,11 @@ function breedsSearch(evt) {
     fetchCatByBreed(breedId)
         .then(data => {
             //console.log(data)
-            //refs.loader.classList.replace('loader', 'is-hidden');
+             Notiflix.Loading.remove();
+            refs.loader.classList.replace('loader', 'is-hidden');
             refs.select.classList.remove('is-hidden');
-
-            // refs.cardCat.insertAdjacentHTML('afterbegin', createMarkup(data))
-            Notiflix.Loading.hourglass(
-                'Loading data, please wait...',{
-           clickToClose: true,
-           svgSize: '50px',
-           });
-            Notiflix.Loading.remove(1000);
-            
+          
+       
             refs.cardCat.innerHTML = createMarkup(data);
             refs.cardCat.classList.remove('is-hidden');
             
