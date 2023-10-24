@@ -23,20 +23,9 @@
     clip: rect(0 0 0 0);
     overflow: hidden;
 }
-.loader {
-    text-align: center;
-    position: relative;
-    margin-top: 100px;
-}
 .breed-select{
     width: 300px;
-    margin: 50 auto;
-    display: none;
-    height: 30px;
-    background-color: lightgray;
-    font-weight: bold;
- 
+    margin: 50 auto; 
 }
-.error {
-    display: none;
-}
+   
+

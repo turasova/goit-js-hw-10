@@ -1,9 +1,9 @@
 
 import SlimSelect from 'slim-select';
 import 'slim-select/dist/slimselect.css';
-import { fetchBreeds, fetchCatByBreed } from "./cat-api";
 import Notiflix from "notiflix";
 import './style.css'
+import { fetchBreeds, fetchCatByBreed } from './cat-api';
 
 
 
@@ -12,74 +12,56 @@ const refs = {
     cardCat: document.querySelector('.cat-info'),
     loader: document.querySelector('.loader'),
     error: document.querySelector('.error'),
-}
-
-refs.loader.classList.replace('loader', 'is-hidden');
-refs.cardCat.classList.add('is-hidden');
-refs.error.style.display = 'none';
-
-
-
-let arrBreedsId = [];
+};
 
 fetchBreeds()
-    .then(data => { 
- 
-        console.log(data);
-        data.forEach(element => {
-            arrBreedsId.push({ text: element.name, value: element.id })
-        });
-         
-        new SlimSelect({
-            
-            select: refs.select,
-            // Array of Option objects
-            data: arrBreedsId,
-        })
-    })
-    .catch(fetchError)
-   
+    .then(data => {
+    let markup = data.map(
+      ({ id, name }) => `<option value="${id}">${name}</option>`
+    );
+    markup.unshift(`<option data-placeholder="true"></option>`);
+    refs.select.innerHTML = markup;
+    new SlimSelect({
+      select: refs.select,
+      settings: {
+        placeholderText: 'Select cat breed',
+      },
+    });
+    refs.select.classList.remove('is-hidden');
+  })
+  .catch(fetchError)
+  .finally(() => {
+    refs.loader.classList.add('is-hidden');
+  });
 
+refs.select.addEventListener('change', onBreedsSearch);
 
-refs.select.addEventListener('change', breedsSearch)
+function onBreedsSearch(evt) {
 
-function breedsSearch(evt) {
         Notiflix.Loading.hourglass(
                 'Loading data, please wait...',{
            clickToClose: true,
            svgSize: '50px',
            });
             
-            
-
-   //refs.loader.classList.replace('is-hidden', 'loader');
-    refs.cardCat.classList.add('is-hidden');
-     refs.select.style.display = 'block';
-
-
+  refs.cardCat.classList.add('is-hidden');
 
     const breedId = evt.currentTarget.value;
 
    console.log(breedId);
 
-    fetchCatByBreed(breedId)
+   fetchCatByBreed(breedId)
         .then(data => {
             //console.log(data)
-             Notiflix.Loading.remove();
-            refs.loader.classList.replace('loader', 'is-hidden');
-            refs.select.classList.remove('is-hidden');
-          
-       
+            Notiflix.Loading.remove();
+           
             refs.cardCat.innerHTML = createMarkup(data);
-            refs.cardCat.classList.remove('is-hidden');
-            
+            refs.cardCat.classList.remove('is-hidden'); 
             
         }
         )
-  
         .catch(fetchError);
 }
-
 
 function createMarkup(obj) {
      
@@ -99,7 +81,7 @@ function createMarkup(obj) {
 }
 
 function fetchError() {
-    refs.select.classList.add('is-hidden');
+    //refs.select.classList.add('is-hidden');
 
 Notiflix.Report.failure(
   'Error',
@@ -111,4 +93,3 @@ Notiflix.Report.failure(
   },
 );
 }
-
